@@ -1,0 +1,5 @@
+D:\My Develope application\TMS SharePoint\TMS\TMS\bin\TMS.dll
+D:\My Develope application\TMS SharePoint\TMS\TMS\bin\TMS.pdb
+D:\My Develope application\TMS SharePoint\TMS\TMS\obj\Debug\ResolveAssemblyReference.cache
+D:\My Develope application\TMS SharePoint\TMS\TMS\obj\Debug\TMS.dll
+D:\My Develope application\TMS SharePoint\TMS\TMS\obj\Debug\TMS.pdb

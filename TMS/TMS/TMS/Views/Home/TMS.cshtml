@@ -1,0 +1,148 @@
+﻿@using System.Web.UI.WebControls;
+@using TMS.Models;
+<script type="text/javascript">
+    function ChangeTitle(node) {
+        $('#TMSTitle2').html(TMSModuleCMB.GetText() + " Area " + TMSHierarchy.GetSelectedNode().GetText());        
+    }
+    function NodeClick(s, e) {
+        ChangeTitle();
+        (!TMSDataViewPanel.InCallback())
+            TMSDataViewPanel.PerformCallback();
+    }
+    function OnBeginCallback(s, e) {
+        e.customArgs['StartDate'] = StartDate.GetText(); 
+        e.customArgs['EndDate'] = EndDate.GetText();
+        e.customArgs['AreaName'] = TMSHierarchy.GetSelectedNode().GetText();
+        e.customArgs['Combobox'] = TMSModuleCMB.GetValue();
+    }
+    window.onload = function () {
+        ChangeTitle();
+        $('#TMSTime').html(Date);
+    }
+</script>
+@Html.DevExpress().CallbackPanel(setcall =>
+    {
+        setcall.Name = "TMSPanel";
+        setcall.CallbackRouteValues = new { Controller = "Home", Action = "TMS",Model.AreaName, Model.User, Model.StartDate, Model.EndDate, Model.ModuleID, Model.ModuleItem };
+        setcall.Width = Unit.Percentage(100);
+        setcall.SettingsLoadingPanel.Enabled = false;
+        setcall.SetContent(() =>
+        {
+            ViewContext.Writer.Write(
+          @"<table style=width:100%; height=700px;>
+                <tr>
+                    <td style='vertical-align:Top;width:15%;'>
+                        <table style='width:100%;'>
+                            <tr>
+                                <td style='background-color:#080ef4; color:#fff;'>Data Viewer Hierarchy</td>
+                            </tr>
+                            <tr>
+                                <td style='vertical-align:Top; border-style:none;'>");
+            Html.DevExpress().TreeView(settings =>
+                {
+                    settings.Name = "TMSHierarchy";
+                    settings.Width = Unit.Percentage(100);
+                    settings.EnableHotTrack = true;
+                    settings.AllowSelectNode = true;
+                    settings.ClientSideEvents.NodeClick = "NodeClick";
+                    settings.Nodes.Add(TMSTreeView.GetTreeView(Model.User));
+                    settings.PreRender = (source, e) =>
+                    {
+                        ASPxTreeView treeView = (ASPxTreeView)source;
+                        treeView.ExpandAll();
+                        if (Model.GetType().Equals(typeof(TMSParam)))
+                        {
+                            TMSParam p = Model as TMSParam;
+                            TMSTreeNode tn = TMSTreeView.GetTreeView(Model.User);
+                            TreeViewNode node = treeView.Nodes.FindByName(tn.Area_Desc);
+                            treeView.SelectedNode = node;
+                            Model.AreaName = node.Name;
+                            Model.ModuleItem = Model.ModuleItem;
+                        }
+                    };
+                }).GetHtml();
+            ViewContext.Writer.Write(@"</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td style='vertical-align:Top; width:85%;'>
+                        <table style='width:100%;'>
+                            <tr>
+                                <td id='TMSTime' style='border-style:none;'></td>
+                            </tr>
+                            <tr>
+                                <td id='TMSTitle2' style='border-style:none;'></td>
+                            </tr>
+                            <tr>
+                                <table cellpadding='0' cellspacing='0' style='padding-right:0.5em; width:100%;'>
+                                    <tr>
+                                        <td style=' border-style:none;'>Module :</td>
+                                        <td style=' border-style:none;'>");
+            Html.DevExpress().ComboBox(settings =>
+            {
+                settings.Name = "TMSModuleCMB";
+                settings.SelectedIndex = 0;
+                settings.Properties.EnableClientSideAPI = true;
+                settings.Properties.ClientSideEvents.SelectedIndexChanged = "NodeClick";
+                settings.Properties.DropDownStyle = DropDownStyle.DropDown;
+                settings.Width = Unit.Percentage(100);
+                settings.Properties.CallbackPageSize = 50;
+                settings.PreRender = (source, e) =>
+                    {
+                        ASPxComboBox cmb = (ASPxComboBox)source;
+                        List<TMSModuleItemCollection> mic = TMSModuleItems.GetItem(Model.User, Model.ModuleID);
+                        Model.ModuleItem = mic.Find(x => x.Item_Desc == cmb.SelectedItem.Text).Item_ID;
+                    };
+            }).BindList(TMSModuleItems.GetItem(Model.User, Model.ModuleID)).GetHtml();
+            ViewContext.Writer.Write(@"
+                                        </td>
+                                        <td style=' border-style:none;'>Start Date :</td>
+                                        <td style=' border-style:none;'>");
+            Html.DevExpress().DateEdit(settings =>
+            {
+                settings.Name = "StartDate";
+                settings.Date = Model.StartDate;
+                settings.Width = Unit.Percentage(100);
+            }).Render();
+            ViewContext.Writer.Write(@"
+                                        </td>
+                                        <td style=' border-style:none;'>End Date :</td>
+                                        <td style=' border-style:none;'>");
+            Html.DevExpress().DateEdit(settings =>
+            {
+                settings.Name = "EndDate";
+                settings.Date = Model.EndDate;
+                settings.Width = Unit.Percentage(100);
+            }).GetHtml();
+            ViewContext.Writer.Write(@"
+                                        </td>
+                                        <td style=' border-style:none;'>");
+            Html.DevExpress().Button(settings =>
+            {
+                settings.Name = "ExecuteBtn";
+                settings.Text = "Execute";
+                settings.ClientSideEvents.Click = @"function(s,e){
+                                                    if (!TMSDataViewPanel.InCallback())
+                                                        TMSDataViewPanel.PerformCallback();
+                                                    }";
+            }).GetHtml();
+            ViewContext.Writer.Write(@"
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan=7 style=' border-style:none;'><div></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan=7 style=' border-style:none;'><div>");
+            Html.RenderPartial("TMSPartial");
+            ViewContext.Writer.Write(@"
+                                                      </div></td>
+                                    </tr>
+                                </table>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>");
+        });
+    }).GetHtml()

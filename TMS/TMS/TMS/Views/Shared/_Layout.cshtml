@@ -1,0 +1,48 @@
+﻿@using TMS.Models;
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <link rel="icon" href="/Images/favicon.ico" type="image/x-icon" />   
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/jquery-1.4.4.min.js")" type="text/javascript"></script>
+    @Html.DevExpress().GetStyleSheets( 
+        new StyleSheet { ExtensionSuite = ExtensionSuite.NavigationAndLayout },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.Editors },
+        new StyleSheet { ExtensionSuite = ExtensionSuite.GridView }
+    )
+    @Html.DevExpress().GetScripts( 
+        new Script { ExtensionSuite = ExtensionSuite.NavigationAndLayout },
+        new Script { ExtensionSuite = ExtensionSuite.Editors },
+        new Script { ExtensionSuite = ExtensionSuite.GridView }
+    )
+</head>
+
+<body>
+    <div class="page">
+
+        <div id="header">
+            <div id="logindisplay">
+                <img alt="Turbomachinery Maintenance System" src="@Url.Content("~/Images/header-logo-tms.png")" style="width:250px; max-height:45px;" />
+            </div>
+            <div id="menucontainer">
+
+                <ul id="menu">
+                    @foreach (var mod in TMSModule.GetModules(ViewData["user"].ToString()))
+                    {
+                        
+                        <li > @Html.ActionLink(mod.Module_Description,mod.Module_Name,"Home")</li>                        
+                    }
+                </ul>
+
+            </div>
+        </div>
+
+        <div id="main">
+            @RenderBody()
+            <div id="footer">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

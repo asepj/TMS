@@ -1,0 +1,58 @@
+@using System.Web.UI.WebControls;
+@using TMS.Models;
+@using System.Collections.Generic;
+@using DevExpress.Web.Mvc;
+@{
+    TMSModuleItems ModuleItem = new TMSModuleItems();    
+    List<TMSModuleItemColumnCollection> col = ModuleItem.GetColumn(Model.ModuleItem);
+    
+ }
+@Html.DevExpress().GridView(settings =>
+                {
+                    settings.Name = "TMSGridView";
+                    settings.CallbackRouteValues = new { Controller = "Home", Action = "DataView",Model.AreaName, Model.User, Model.StartDate, Model.EndDate, Model.ModuleID, Model.ModuleItem };
+                    settings.Width = Unit.Percentage(100);
+                    settings.Styles.Header.HorizontalAlign = HorizontalAlign.Center;
+                    settings.Styles.Header.VerticalAlign = VerticalAlign.Middle;
+                    settings.Styles.Header.Wrap = DefaultBoolean.True;
+                    settings.Styles.HeaderPanel.Wrap = DefaultBoolean.True;
+                    settings.SettingsPager.PageSize = 9;
+                    foreach(TMSModuleItemColumnCollection cCollection in col)
+                    {
+                        settings.Columns.Add(column =>
+                        {
+                            column.FieldName = cCollection.Column_Name;
+                            column.Caption = cCollection.Column_Name_View;
+                            var periodValue = column.PropertiesEdit as SpinEditProperties;
+                            switch (cCollection.Column_Datatype)
+                            {
+                                case "date":
+                                    column.ColumnType = MVCxGridViewColumnType.DateEdit;
+                                    break;
+                                case "string":
+                                    column.ColumnType = MVCxGridViewColumnType.Memo;
+                                    break;
+                                case "integer":
+                                    column.ColumnType = MVCxGridViewColumnType.SpinEdit;
+                                    periodValue = column.PropertiesEdit as SpinEditProperties;
+                                    periodValue.NumberType = SpinEditNumberType.Integer;
+                                    periodValue.DisplayFormatInEditMode = false;
+                                    break;
+                                case "float":
+                                    column.ColumnType = MVCxGridViewColumnType.SpinEdit;
+                                    periodValue = column.PropertiesEdit as SpinEditProperties;
+                                    periodValue.NumberType = SpinEditNumberType.Float;
+                                    periodValue.DisplayFormatInEditMode = false;
+                                    periodValue.DecimalPlaces = 3;
+                                    break;
+                                case "tooltip":
+                                    column.ColumnType = MVCxGridViewColumnType.HyperLink;
+                                    break;
+                                default:
+                                    column.ColumnType = MVCxGridViewColumnType.TextBox;
+                                    break;
+                            }
+                        });
+                    }
+                    settings.Enabled = true;
+                }).Bind(TMSModuleItems.GetData(Model)).GetHtml()

@@ -1,0 +1,16 @@
+﻿@using System.Web.UI.WebControls;
+@using TMS.Models;
+@Html.DevExpress().CallbackPanel(setting1 =>
+            {
+                setting1.Name = "TMSDataViewPanel";
+                setting1.CallbackRouteValues = new { Controller = "Home", Action = "TMSPartial", Model.AreaName, Model.User, Model.StartDate, Model.EndDate, Model.ModuleID, Model.ModuleItem };
+                setting1.ClientSideEvents.BeginCallback = "function OnBeginCallbackHandler(s,e){OnBeginCallback(s,e);}";
+                List<TMSModuleItemCollection> mic = TMSModuleItems.GetItem(Model.User, Model.ModuleID);
+                if (mic.Find(x=>x.Item_ID==Model.ModuleItem).PageView =="grid")
+                {
+                    setting1.SetContent(() =>
+                    {
+                        Html.RenderPartial("DataView");
+                    });
+                }
+            }).GetHtml()
