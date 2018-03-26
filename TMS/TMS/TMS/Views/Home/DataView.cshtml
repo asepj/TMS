@@ -3,14 +3,15 @@
 @using System.Collections.Generic;
 @using DevExpress.Web.Mvc;
 @{
-    TMSModuleItems ModuleItem = new TMSModuleItems();    
-    List<TMSModuleItemColumnCollection> col = ModuleItem.GetColumn(Model.ModuleItem);
+    TMSModuleItems ModuleItem = new TMSModuleItems();
+    Model.QueryName = "ItemColumnCollection";
+    List<TMSModuleItemColumnCollection> col = ModuleItem.GetColumn(Model);
     
  }
 @Html.DevExpress().GridView(settings =>
                 {
                     settings.Name = "TMSGridView";
-                    settings.CallbackRouteValues = new { Controller = "Home", Action = "DataView",Model.AreaName, Model.User, Model.StartDate, Model.EndDate, Model.ModuleID, Model.ModuleItem };
+                    settings.CallbackRouteValues = new { Controller = "Home", Action = "DataView", Model.AreaName, Model.StartDate, Model.EndDate, Model.User, Model.ModuleID, Model.ModuleItem, Model.HomePageID, Model.ChartType, Model.AreaID, Model.EquipmentID, Model.QueryName };
                     settings.Width = Unit.Percentage(100);
                     settings.Styles.Header.HorizontalAlign = HorizontalAlign.Center;
                     settings.Styles.Header.VerticalAlign = VerticalAlign.Middle;
@@ -55,4 +56,5 @@
                         });
                     }
                     settings.Enabled = true;
+                    Model.QueryName = "ModuleItem";
                 }).Bind(TMSModuleItems.GetData(Model)).GetHtml()

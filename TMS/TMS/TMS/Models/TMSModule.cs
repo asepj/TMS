@@ -10,13 +10,13 @@ namespace TMS.Models
         public TMSModule()
         {
         }
-        public TMSModule(string UserName)
+        public TMSModule(TMSParam model)
         {
             TMSGetData db = new TMSGetData();
-            DataTable dt = db.GetQuery("Module");
+            DataTable dt = db.GetQuery(model.QueryName);
             if (db.ErrorMessage == null && dt.Rows.Count > 0)
             {
-                string ModuleQuery = dt.Rows[0][1].ToString().Replace("@UserName", UserName);
+                string ModuleQuery = dt.Rows[0][1].ToString().Replace("@UserName", model.User);
                 string Tablename = dt.Rows[0][2].ToString();
                 dt = db.GetDataTable(ModuleQuery, Tablename);
                 if (db.ErrorMessage == null && dt.Rows.Count > 0)
@@ -29,14 +29,14 @@ namespace TMS.Models
                 }
             }
         }
-        public static List<TMSModuleCollection> GetModules(string UserName)
+        public static List<TMSModuleCollection> GetModules(string user)
         {
             TMSGetData db = new TMSGetData();
             List<TMSModuleCollection> ModuleList = new List<TMSModuleCollection>();
             DataTable dt = db.GetQuery("Module");
             if (db.ErrorMessage == null && dt.Rows.Count > 0)
             {
-                string ModuleQuery = dt.Rows[0][1].ToString().Replace("@UserName", UserName);
+                string ModuleQuery = dt.Rows[0][1].ToString().Replace("@UserName",user);
                 string Tablename = dt.Rows[0][2].ToString();
                 dt = db.GetDataTable(ModuleQuery, Tablename);
                 if (db.ErrorMessage == null && dt.Rows.Count > 0)

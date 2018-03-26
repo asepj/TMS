@@ -1,0 +1,67 @@
+﻿@using System.Web.UI.WebControls;
+@using TMS.Models;
+@using System.Data;
+@Html.DevExpress().CallbackPanel(setcall =>
+    {
+        setcall.Name = "TMSHomePanel";
+        setcall.Width = Unit.Percentage(100);
+        setcall.CallbackRouteValues = new { Controller = "Home", Action = "HomePage", Model.AreaName, Model.StartDate, Model.EndDate, Model.User, Model.ModuleID, Model.ModuleItem, Model.HomePageID, Model.ChartType, Model.AreaID, Model.EquipmentID, Model.QueryName };
+        setcall.ClientSideEvents.BeginCallback = "function OnBeginCallbackHandler(s,e){OnBeginCallback(s,e);}";
+        setcall.HideContentOnCallback = false;
+        setcall.SetContent(() =>
+            {
+                ViewContext.Writer.Write(
+                @"<table style=width:100%; height=700px;>
+                        <tr>
+                               <td style='vertical-align:Top;width:100%;'>
+                                    <table style='width:100%;'>
+                                        <tr>
+                                            <td style='vertical-align:middle; horizontal-align:center; border-style:none; text-align:center; font-size:200%;'>");
+                TMSGetData db = new TMSGetData();
+                Model.QueryName = "HomePageTittle";
+                DataTable dt = db.GetQuery(Model.QueryName);
+                if (db.ErrorMessage == null && dt.Rows.Count > 0)
+                {
+                    string query = dt.Rows[0][1].ToString().Replace("@EquipmentID", Model.EquipmentID.ToString());
+                    dt = db.GetDataTable(query, dt.Rows[0][2].ToString());
+                    if (db.ErrorMessage == null && dt.Rows.Count > 0)
+                        ViewContext.Writer.Write(dt.Rows[0][0].ToString() + "</br> <font color='blue'>" + dt.Rows[0][1].ToString()+"</br>"+Model.StartDate.ToString("dd-MMM-yyyy")+"</font>");
+                }
+                 ViewContext.Writer.Write(@"</td>
+                                           </tr>
+                                            <table style=width:100%; height=450px;>
+                                                <tr>
+                                                    <td style='vertical-align:middle; horizontal-align:center; border-style:none;'>");
+                Model.HomePageID= "ReliabilityPanel";
+                Model.QueryName = "Reliability";
+                Model.ChartType = "Doughnut";
+                Html.RenderPartial("IndexPartial");
+                         ViewContext.Writer.Write(
+                                                  @"</td>
+                                                    <td style='vertical-align:middle; horizontal-align:center; border-style:none;'></td>
+                                                    <td style='vertical-align:middle; horizontal-align:center; border-style:none;'>");
+                Model.HomePageID = "AvailabilityPanel";
+                Model.QueryName = "Availability";
+                Model.ChartType = "Doughnut";                
+                Html.RenderPartial("IndexPartial");                
+                         ViewContext.Writer.Write(@"</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style='vertical-align:middle; horizontal-align:center; border-style:none;'></td>
+                                                    <td style='vertical-align:middle; horizontal-align:center; border-style:none;'>");
+                Model.HomePageID = "HeatMapPanel";
+                Model.QueryName = "HeatMap";
+                Model.ChartType = "Bar";                
+                Html.RenderPartial("IndexPartial");
+                ViewContext.Writer.Write(
+                                                  @"</td>
+                                                    <td style='vertical-align:middle; horizontal-align:center; border-style:none;'></td>
+                                                </tr>
+                                            </table>
+                                        </tr>
+                                    </table>
+                               </td>
+                        </tr>");
+                Model.AreaID = Model.AreaID + 1;                
+            });      
+    }).GetHtml()

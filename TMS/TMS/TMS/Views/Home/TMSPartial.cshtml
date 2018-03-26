@@ -3,9 +3,9 @@
 @Html.DevExpress().CallbackPanel(setting1 =>
             {
                 setting1.Name = "TMSDataViewPanel";
-                setting1.CallbackRouteValues = new { Controller = "Home", Action = "TMSPartial", Model.AreaName, Model.User, Model.StartDate, Model.EndDate, Model.ModuleID, Model.ModuleItem };
+                setting1.CallbackRouteValues = new { Controller = "Home", Action = "TMSPartial", Model.AreaName, Model.StartDate, Model.EndDate, Model.User, Model.ModuleID, Model.ModuleItem, Model.HomePageID, Model.ChartType, Model.AreaID, Model.EquipmentID, Model.QueryName };
                 setting1.ClientSideEvents.BeginCallback = "function OnBeginCallbackHandler(s,e){OnBeginCallback(s,e);}";
-                List<TMSModuleItemCollection> mic = TMSModuleItems.GetItem(Model.User, Model.ModuleID);
+                List<TMSModuleItemCollection> mic = TMSModuleItems.GetItem(Model);
                 if (mic.Find(x=>x.Item_ID==Model.ModuleItem).PageView =="grid")
                 {
                     setting1.SetContent(() =>

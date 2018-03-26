@@ -16,19 +16,20 @@ namespace TMS.Controllers
         public ActionResult Index(TMSParam model)
         {
             ViewData["user"] = user;
-
-            ViewData["test"] = Request.ServerVariables["REMOTE_USER"];
             TMSGetData db = new TMSGetData();
-            DataTable dt = db.GetQuery("Title");
+            model.QueryName = "Title";
+            DataTable dt = db.GetQuery(model.QueryName);
             if (db.ErrorMessage == null && dt.Rows.Count > 0)
             {
-                model.StartDate = DateTime.Now.AddDays(-7);
-                model.EndDate=DateTime.Now;
-                model.User=user;
-                model.ModuleID=1;
-                string query = dt.Rows[0][1].ToString()+"1";
-                string TableName = dt.Rows[0][2].ToString();
-                dt = db.GetDataTable(query, TableName);
+                model.StartDate = DateTime.Now;
+                model.EndDate = DateTime.Now;
+                model.User = user;
+                model.ModuleID = 1;
+                model.EquipmentID = 1;
+                model.AreaID = 1;
+                ViewData["NewEquipmentID"] = model.EquipmentID;
+                string query = dt.Rows[0][1].ToString() + "1";
+                dt = db.GetDataTable(query, dt.Rows[0][2].ToString());
                 if (db.ErrorMessage == null && dt.Rows.Count > 0)
                     ViewData["Title"] = dt.Rows[0][0].ToString();
             }
@@ -38,7 +39,8 @@ namespace TMS.Controllers
         {
             ViewData["user"] = user;
             TMSGetData db = new TMSGetData();
-            DataTable dt = db.GetQuery("Title");
+            model.QueryName = "Title";
+            DataTable dt = db.GetQuery(model.QueryName);
             if (db.ErrorMessage == null && dt.Rows.Count > 0)
             {
                 model.StartDate = DateTime.Now.AddDays(-7);
@@ -46,32 +48,62 @@ namespace TMS.Controllers
                 model.User = user;
                 model.ModuleID = 2;
                 string query = dt.Rows[0][1].ToString() + "2";
-                string TableName = dt.Rows[0][2].ToString();
-                dt = db.GetDataTable(query, TableName);
+                dt = db.GetDataTable(query, dt.Rows[0][2].ToString());
                 if (db.ErrorMessage == null && dt.Rows.Count > 0)
                     ViewData["Title"] = dt.Rows[0][0].ToString();
             }
             return View(model);
         }
-
+        [HttpPost]
+        public ActionResult GetID()
+        {
+            TMSGetData db = new TMSGetData();
+            TMSParam model = new TMSParam();
+            model.QueryName = "NextEquipment";
+            DataTable dt = db.GetQuery(model.QueryName);
+            if (db.ErrorMessage == null && dt.Rows.Count > 0)
+            {
+                string query = dt.Rows[0][1].ToString().Replace("@EquipmentID", Request.Params["AreaID"].ToString());
+                dt = db.GetDataTable(query, dt.Rows[0][2].ToString());
+                if (db.ErrorMessage == null && dt.Rows.Count > 0)
+                {
+                    model.User = user;
+                    model.ModuleID = 1;
+                    model.EquipmentID = Convert.ToInt32(dt.Rows[0][0].ToString());
+                }
+            }
+            model.StartDate = DateTime.Now;
+            return (Json(model.EquipmentID));
+        }
+        [HttpPost, ValidateInput(false)]
+        public ActionResult HomePage(TMSParam model)
+        {
+            if (Request.Params["NewEquipmentID"] != null)
+            {
+                model.EquipmentID = Convert.ToInt32( Request.Params["NewEquipmentID"].ToString());
+                model.StartDate = DateTime.Now;
+            }
+            return PartialView("HomePage", model);
+        }
         [HttpPost, ValidateInput(false)]
         public ActionResult TMSPartial(TMSParam model)
         {
-            List<TMSModuleItemCollection> mic = TMSModuleItems.GetItem(model.User, model.ModuleID);
+            model.QueryName = "ModuleItem";
+            List<TMSModuleItemCollection> mic = TMSModuleItems.GetItem(model);
             model.ModuleItem = mic.Find(x => x.Item_Desc == Request.Params["Combobox"].ToString()).Item_ID;
-            return PartialView("TMSPartial",model);
+            return PartialView("TMSPartial", model);
         }
 
-        public ActionResult Setting()
+        public ActionResult Setting(TMSParam model)
         {
             ViewData["user"] = user;
             TMSGetData db = new TMSGetData();
-            DataTable dt = db.GetQuery("Title");
+            model.QueryName = "Title";
+            DataTable dt = db.GetQuery(model.QueryName);
             if (db.ErrorMessage == null && dt.Rows.Count > 0)
             {
                 string query = dt.Rows[0][1].ToString() + "3";
-                string TableName = dt.Rows[0][2].ToString();
-                dt = db.GetDataTable(query, TableName);
+                dt = db.GetDataTable(query, dt.Rows[0][2].ToString());
                 if (db.ErrorMessage == null && dt.Rows.Count > 0)
                     ViewData["Title"] = dt.Rows[0][0].ToString();
             }
@@ -80,7 +112,7 @@ namespace TMS.Controllers
 
         [HttpPost, ValidateInput(false)]
         public ActionResult DataView(TMSParam model)
-        {            
+        {
             return PartialView("DataView", model);
         }
 

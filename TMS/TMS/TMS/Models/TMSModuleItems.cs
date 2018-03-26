@@ -9,14 +9,14 @@ namespace TMS.Models
         public TMSModuleItems()
         {
         }
-        public TMSModuleItems(string user, int module_id)
+        public TMSModuleItems(TMSParam model)
         {
             ItemCollection = new List<TMSModuleItemCollection>();
             TMSGetData db = new TMSGetData();
-            DataTable dt = db.GetQuery("ModuleItem");
+            DataTable dt = db.GetQuery(model.QueryName);
             if (db.ErrorMessage == null && dt.Rows.Count > 0)
             {
-                string query = dt.Rows[0][1].ToString().Replace("@user", user).Replace("@moduleid", module_id.ToString());
+                string query = dt.Rows[0][1].ToString().Replace("@user", model.User).Replace("@moduleid", model.ModuleID.ToString());
                 string TableName = dt.Rows[0][2].ToString();
                 dt = db.GetDataTable(query, TableName);
                 if (db.ErrorMessage == null && dt.Rows.Count > 0)
@@ -29,7 +29,7 @@ namespace TMS.Models
         public static DataTable GetData(TMSParam model)
         {
             TMSGetData db = new TMSGetData();
-            TMSModuleItems moduleitem = new TMSModuleItems(model.User, model.ModuleID);
+            TMSModuleItems moduleitem = new TMSModuleItems(model);
             TMSModuleItemCollection collection = moduleitem.ItemCollection.Find(x => x.Item_ID == model.ModuleItem);
             if (collection.Query == null) return null;
             DataTable dt = db.GetQuery(collection.Query);
@@ -41,14 +41,14 @@ namespace TMS.Models
             }
             return dt;
         }
-        public static List<TMSModuleItemCollection> GetItem(string user, int module_id)
+        public static List<TMSModuleItemCollection> GetItem(TMSParam model)
         {
             List<TMSModuleItemCollection> ItemCollection = new List<TMSModuleItemCollection>();
             TMSGetData db = new TMSGetData();
-            DataTable dt = db.GetQuery("ModuleItem");
+            DataTable dt = db.GetQuery(model.QueryName);
             if (db.ErrorMessage == null && dt.Rows.Count > 0)
             {
-                string query = dt.Rows[0][1].ToString().Replace("@user", user).Replace("@moduleid", module_id.ToString());
+                string query = dt.Rows[0][1].ToString().Replace("@user", model.User).Replace("@moduleid", model.ModuleID.ToString());
                 string TableName = dt.Rows[0][2].ToString();
                 dt = db.GetDataTable(query, TableName);
                 if (db.ErrorMessage == null && dt.Rows.Count > 0)
@@ -59,14 +59,14 @@ namespace TMS.Models
             }
             return ItemCollection;
         }
-        public List<TMSModuleItemColumnCollection> GetColumn(int itemID)
+        public List<TMSModuleItemColumnCollection> GetColumn(TMSParam model)
         {
             List<TMSModuleItemColumnCollection> CollumnCollection = new List<TMSModuleItemColumnCollection>();
             TMSGetData db = new TMSGetData();
-            DataTable dt = db.GetQuery("ItemColumnCollection");
+            DataTable dt = db.GetQuery(model.QueryName);
             if (db.ErrorMessage == null && dt.Rows.Count > 0)
             {
-                string query = dt.Rows[0][1].ToString().Replace("@ItemID", itemID.ToString());
+                string query = dt.Rows[0][1].ToString().Replace("@ItemID", model.ModuleItem.ToString());
                 string TableName = dt.Rows[0][2].ToString();
                 dt = db.GetDataTable(query, TableName);
                 if (db.ErrorMessage == null && dt.Rows.Count > 0)

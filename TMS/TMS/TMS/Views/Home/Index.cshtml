@@ -1,1 +1,24 @@
-﻿@ViewBag.Test
+﻿<script type="text/javascript">
+    var AreaID = 2;
+    function OnBeginCallback(s, e) {
+        e.customArgs['NewEquipmentID'] = AreaID;
+    }
+    setInterval(function () 
+    {
+        setTimeout(function(){},1000);     
+            $.post("@Url.Action("GetID","Home")/?AreaID="+AreaID,{},function(data)
+            {
+              TMSHomePanel.PerformCallback();
+              AreaID = data;
+            });        
+    }, 5000)
+</script>
+@Html.DevExpress().CallbackPanel(setcall =>
+    {
+        setcall.Name = "IndexHome";
+        setcall.SettingsLoadingPanel.Enabled = false;
+        setcall.SetContent(() =>
+            {
+                Html.RenderPartial("HomePage");
+            });             
+    }).GetHtml()

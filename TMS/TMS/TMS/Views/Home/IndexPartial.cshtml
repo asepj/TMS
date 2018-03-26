@@ -1,0 +1,49 @@
+﻿@using System.Web.UI.WebControls;
+@using TMS.Models;
+@using System.Data;
+@Html.DevExpress().Chart(setting1 =>
+            {
+                setting1.Name = Model.HomePageID;
+                setting1.Width = Unit.Pixel(513);
+                TMSGetData data = new TMSGetData();
+                DataTable dt = data.GetData(Model);
+                setting1.BorderOptions.Visibility = DefaultBoolean.False;
+                if (Model.ChartType == "Doughnut" && Model.ModuleID == 1)
+                {
+                    Series seri = new Series("series 1", DevExpress.XtraCharts.ViewType.Doughnut3D);
+                    seri.Points.Add(new SeriesPoint(dt.Columns[0].ToString(), dt.Rows[0][0]));
+                    if (Model.QueryName == "Reliability")
+                        seri.Points[0].Color = System.Drawing.Color.Yellow;
+                    else if (Model.QueryName == "Availability")
+                        seri.Points[0].Color = System.Drawing.Color.Blue;
+                    seri.Points.Add(new SeriesPoint(dt.Columns[1].ToString(), dt.Rows[0][1]));
+                    seri.Points[1].Color = System.Drawing.Color.Transparent;
+                    seri.LabelsVisibility = DefaultBoolean.False;
+                    setting1.Series.Add(seri);
+                    ChartTitle title = new ChartTitle();
+                    title.Text = Model.QueryName+ " "+Convert.ToDecimal( dt.Rows[0][0].ToString()).ToString("0.###")+" %";
+                    setting1.Titles.Add(title);
+                    ((Doughnut3DSeriesView)seri.View).HoleRadiusPercent = 85;
+                    ((SimpleDiagram3D)setting1.Diagram).RotationType = RotationType.UseAngles;
+                    ((SimpleDiagram3D)setting1.Diagram).RotationAngleX = 0;                    
+                }
+                else if (Model.ChartType == "Bar" && Model.ModuleID == 1)
+                {
+                    Series seri = new Series("series 1", DevExpress.XtraCharts.ViewType.Bar);                 
+                    seri.Points.Add(new SeriesPoint(1, dt.Rows[0][2]));
+                    seri.Points.Add(new SeriesPoint(1, dt.Rows[0][1]));
+                    seri.Points[0].Color = System.Drawing.Color.Gray;
+                    seri.Points[1].Color = System.Drawing.Color.Black;
+                    Series seri1 = new Series("seres 2", DevExpress.XtraCharts.ViewType.Bar);
+                    seri1.Points.Add(new SeriesPoint(1, dt.Rows[0][0]));
+                    seri1.Points[0].Color = System.Drawing.Color.Green;
+                    setting1.Series.Add(seri);
+                    setting1.Series.Add(seri1);
+                    ((BarSeriesView)seri.View).BarWidth = 0.3;
+                    ((BarSeriesView)seri1.View).BarWidth = 0.2;
+                    ((XYDiagram)setting1.Diagram).Rotated = true;
+                    ((XYDiagram)setting1.Diagram).AxisX.Visibility = DefaultBoolean.False;
+                    ((XYDiagram)setting1.Diagram).AxisY.Label.TextPattern = "{A:#,K}";
+                }
+                setting1.Legend.Visibility = DefaultBoolean.False;
+            }).GetHtml()

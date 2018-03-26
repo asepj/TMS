@@ -10,7 +10,7 @@ namespace TMS.Models
         public string UserName { get; set; }
         public TMSClientUser()
         {
-            UserName = "spc";
+            UserName = HttpContext.Current.User.Identity.Name.Split('\\').Last();
         }
     }
 }

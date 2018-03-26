@@ -56,5 +56,21 @@ namespace TMS.Models
             }
             return dt;
         }
+        public DataTable GetData(TMSParam model)
+        {
+            DataTable dt = GetQuery(model.QueryName);
+            if (ErrorMessage == null && dt.Rows.Count > 0)
+            {                
+                if (model.EquipmentID == 0)
+                    model.EquipmentID = 1;
+                string query = dt.Rows[0][1].ToString().Replace("@EquipmentID", model.EquipmentID.ToString()).Replace("@StartDate", model.StartDate.ToString("yyyy-MM-dd"));
+                dt = GetDataTable(query, dt.Rows[0][2].ToString());
+                if (ErrorMessage != null)
+                    dt = null;
+            }
+            else
+                dt = null;
+            return dt;
+        }
     }
 }

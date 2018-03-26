@@ -6,14 +6,14 @@ namespace TMS.Models
     public class TMSTreeView
     {
         private TMSTreeNode treeNode;
-        private TMSTreeView(string user)
+        private TMSTreeView(TMSParam model)
         {            
             
             TMSGetData db = new TMSGetData();
-            DataTable dt = db.GetQuery("Area");
+            DataTable dt = db.GetQuery(model.QueryName);
             if (db.ErrorMessage == null && dt.Rows.Count > 0)
             {
-                string query =dt.Rows[0][1].ToString ().Replace("@UserAcc", user);
+                string query =dt.Rows[0][1].ToString ().Replace("@UserAcc", model.User);
                 string TableName = dt.Rows[0][2].ToString();
                 dt = db.GetDataTable(query, TableName);
                 if (db.ErrorMessage == null && dt.Rows.Count > 0)
@@ -31,9 +31,9 @@ namespace TMS.Models
                 }
             }
         }
-        public static TMSTreeNode GetTreeView(string user)
+        public static TMSTreeNode GetTreeView(TMSParam model)
         {
-            TMSTreeView tree = new TMSTreeView(user);
+            TMSTreeView tree = new TMSTreeView(model);
             return tree.treeNode;
         }
     }

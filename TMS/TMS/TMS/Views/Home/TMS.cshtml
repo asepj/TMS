@@ -17,13 +17,11 @@
     }
     window.onload = function () {
         ChangeTitle();
-        $('#TMSTime').html(Date);
     }
 </script>
 @Html.DevExpress().CallbackPanel(setcall =>
     {
-        setcall.Name = "TMSPanel";
-        setcall.CallbackRouteValues = new { Controller = "Home", Action = "TMS",Model.AreaName, Model.User, Model.StartDate, Model.EndDate, Model.ModuleID, Model.ModuleItem };
+        setcall.Name = "TMSPanel";        
         setcall.Width = Unit.Percentage(100);
         setcall.SettingsLoadingPanel.Enabled = false;
         setcall.SetContent(() =>
@@ -45,7 +43,8 @@
                     settings.EnableHotTrack = true;
                     settings.AllowSelectNode = true;
                     settings.ClientSideEvents.NodeClick = "NodeClick";
-                    settings.Nodes.Add(TMSTreeView.GetTreeView(Model.User));
+                    Model.QueryName = "Area";
+                    settings.Nodes.Add(TMSTreeView.GetTreeView(Model));
                     settings.PreRender = (source, e) =>
                     {
                         ASPxTreeView treeView = (ASPxTreeView)source;
@@ -53,7 +52,7 @@
                         if (Model.GetType().Equals(typeof(TMSParam)))
                         {
                             TMSParam p = Model as TMSParam;
-                            TMSTreeNode tn = TMSTreeView.GetTreeView(Model.User);
+                            TMSTreeNode tn = TMSTreeView.GetTreeView(Model);
                             TreeViewNode node = treeView.Nodes.FindByName(tn.Area_Desc);
                             treeView.SelectedNode = node;
                             Model.AreaName = node.Name;
@@ -67,9 +66,6 @@
                     </td>
                     <td style='vertical-align:Top; width:85%;'>
                         <table style='width:100%;'>
-                            <tr>
-                                <td id='TMSTime' style='border-style:none;'></td>
-                            </tr>
                             <tr>
                                 <td id='TMSTitle2' style='border-style:none;'></td>
                             </tr>
@@ -87,13 +83,14 @@
                 settings.Properties.DropDownStyle = DropDownStyle.DropDown;
                 settings.Width = Unit.Percentage(100);
                 settings.Properties.CallbackPageSize = 50;
+                Model.QueryName = "ModuleItem";
                 settings.PreRender = (source, e) =>
                     {
                         ASPxComboBox cmb = (ASPxComboBox)source;
-                        List<TMSModuleItemCollection> mic = TMSModuleItems.GetItem(Model.User, Model.ModuleID);
+                        List<TMSModuleItemCollection> mic = TMSModuleItems.GetItem(Model);
                         Model.ModuleItem = mic.Find(x => x.Item_Desc == cmb.SelectedItem.Text).Item_ID;
                     };
-            }).BindList(TMSModuleItems.GetItem(Model.User, Model.ModuleID)).GetHtml();
+            }).BindList(TMSModuleItems.GetItem(Model)).GetHtml();
             ViewContext.Writer.Write(@"
                                         </td>
                                         <td style=' border-style:none;'>Start Date :</td>
