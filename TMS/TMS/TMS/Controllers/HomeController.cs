@@ -25,7 +25,7 @@ namespace TMS.Controllers
                 model.EndDate = DateTime.Now;
                 model.User = user;
                 model.ModuleID = 1;
-                model.EquipmentID = 1;
+                model.EquipmentID = 2;
                 model.AreaID = 1;
                 ViewData["NewEquipmentID"] = model.EquipmentID;
                 string query = dt.Rows[0][1].ToString() + "1";
